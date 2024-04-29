@@ -6,6 +6,8 @@ import zipfile
 import tarfile
 import gzip
 import shutil
+from pathlib import Path
+
 
 base_folder_for_scan = ''
 
@@ -19,45 +21,29 @@ rools = {
 }
 
 def move_dir(filename, destination):
-    global base_folder_for_scan
-
     if not os.path.exists(destination):
         os.makedirs(destination)
 
-    try:
-        short_file_name = os.path.basename(filename)
-        new_short_file_name = normalize(short_file_name)
-        shutil.move(filename, f"{destination}{new_short_file_name}")
+    short_file_name = os.path.basename(filename)
+    new_short_file_name = normalize(short_file_name)
 
+    try:
+        shutil.move(filename, f"{destination}{new_short_file_name}")
     except shutil.Error as e:
-        e.errno
-        print("Ділення на нуль!")
+        print("Виникла помилка:", e)
 
 def get_file_extension(filename):
-    _, extension = os.path.splitext(filename)
-
-    extension = os.path.normpath(extension.upper())
-    extension = extension[1:]
+    file_path = Path(filename)
+    extension = file_path.suffix
 
     return extension
 
 def get_folder_by_file_type(file, extension):
-    global rools
-
     for category, extensions in rools.items():
         if extension in extensions:
             return category
 
     return 'other'
-
-def unpack_archive(file, extension):
-    if(extension == 'ZIP'):
-        return unpack_zip(file)
-    elif(extension == 'TAR'):
-        return unpack_tar(file)
-    elif(extension == 'GZ'):
-        return unpack_gz(file)
-    return ''
 
 def unpack_tar(file, destination):
     try:
@@ -112,7 +98,7 @@ def is_unavaliable_path(current_path, current_folder_name):
     if base_folder_for_scan != current_path:
         return False
 
-    if current_folder_name in rools.keys():
+    if current_folder_name in rools:
         return True
     
     return False
@@ -159,7 +145,6 @@ def transliterate_cyrillic(text):
 
 
 def scan_files(path):
-    
     for entry in os.listdir(path):
         full_path = os.path.join(path, entry)
 
@@ -204,8 +189,7 @@ def console_read_first_paremeter():
     return ''
 
 
-
-base_folder_for_scan = '/home/snenko/Downloads/22/' #console_read_first_paremeter()
-
-if os.path.exists(base_folder_for_scan) and os.path.isdir(base_folder_for_scan):
-    scan_files(base_folder_for_scan)
+if len(sys.argv) > 1:
+    base_folder_for_scan = sys.argv[1]
+    if os.path.exists(base_folder_for_scan) and os.path.isdir(base_folder_for_scan):
+        scan_files(base_folder_for_scan)
