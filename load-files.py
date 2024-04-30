@@ -188,8 +188,8 @@ def console_read_first_paremeter():
     print("відсутні аргументи")
     return ''
 
-
-if len(sys.argv) > 1:
-    base_folder_for_scan = sys.argv[1]
-    if os.path.exists(base_folder_for_scan) and os.path.isdir(base_folder_for_scan):
-        scan_files(base_folder_for_scan)
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        base_folder_for_scan = sys.argv[1]
+        if os.path.exists(base_folder_for_scan) and os.path.isdir(base_folder_for_scan):
+            scan_files(base_folder_for_scan)
